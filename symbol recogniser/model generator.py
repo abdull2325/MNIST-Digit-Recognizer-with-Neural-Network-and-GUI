@@ -13,8 +13,18 @@ import json
 import tkinter as tk
 from tkinter import filedialog
 from PIL import Image, ImageTk
-
-
+from PIL import Image, ImageTk
+import numpy as np
+import io
+import tkinter as tk
+from PIL import Image, ImageTk
+import numpy as np
+import torch
+import io
+import tkinter as tk
+from PIL import Image, ImageGrab
+import numpy as np
+import torch
 # Load the MNIST dataset from the provided zip file
 def load_mnist_from_zip(zip_file_path):
     with zipfile.ZipFile(zip_file_path, 'r') as z:
@@ -233,9 +243,16 @@ class DigitRecognizerGUI:
         self.canvas.create_oval(x1, y1, x2, y2, fill="white", width=0)
 
     def predict_digit(self):
-        self.canvas.update()
-        self.canvas.postscript(file="tmp_digit.eps")
-        img = Image.open("tmp_digit.eps")
+        # Get the canvas coordinates
+        x = self.master.winfo_rootx() + self.canvas.winfo_x()
+        y = self.master.winfo_rooty() + self.canvas.winfo_y()
+        x1 = x + self.canvas.winfo_width()
+        y1 = y + self.canvas.winfo_height()
+
+        # Capture the canvas area
+        img = ImageGrab.grab(bbox=(x, y, x1, y1))
+
+        # Resize and convert the image
         img = img.resize((28, 28)).convert('L')
         img_array = np.array(img).reshape(1, 784) / 255.0
         img_tensor = torch.FloatTensor(img_array).to(self.device)
@@ -267,10 +284,10 @@ if __name__ == "__main__":
     # Define parameter grid for grid search
     param_grid = {
         'hidden_neurons': [64, 128],
-        'num_hidden_layers': [1, 2],
+        'num_hidden_layers': [2, 4],
         'dropout_prob': [0.3, 0.5],
-        'epochs': [20, 30],
-        'batch_size': [32, 64],
+        'epochs': [30, 50],
+        'batch_size': [64, 128],
         'learning_rate': [0.001, 0.0001]
     }
 
